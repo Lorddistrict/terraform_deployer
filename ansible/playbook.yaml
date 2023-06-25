@@ -1,0 +1,39 @@
+---
+- hosts: localhost
+  vars_files:
+    - "/home/debian/variables.yaml"
+  tasks:
+    - name: Install dependencies
+      apt:
+        name:
+          - git
+          - curl
+          - make
+        state: present
+
+    - name: Download docker install script
+      get_url:
+        url: https://get.docker.com
+        dest: /tmp/docker.sh
+        mode: 755
+
+    - name: Install docker
+      script: /tmp/docker.sh
+
+    - name: Clone project repository
+      git:
+        repo: "{{ git.project.url }}"
+        dest: "/home/debian/{{ git.project.name }}"
+        clone: yes
+        update: yes
+
+    - name: Login to docker registry
+      community.docker.docker_login:
+        username: "{{ docker.username }}"
+        password: "{{ docker.password }}"
+        registry: "{{ docker.registry }}"
+
+    - name: Start project
+      community.docker.docker_compose:
+        project_src: "/home/debian/{{ git.project.name }}"
+        build: false

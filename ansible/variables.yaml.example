@@ -1,0 +1,9 @@
+---
+docker:
+  registry:
+  username:
+  password:
+git:
+  project:
+    url:
+    name:
